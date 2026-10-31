@@ -80,8 +80,8 @@ export default function SalesScreen({ navigation }: Props) {
             load(page + 1);
           }
         }}
-        ListEmptyComponent={loading ? null : <Text style={styles.empty}>No sales yet.</Text>}
-        ListFooterComponent={loading && page > 1 ? <ActivityIndicator color={colors.primary} /> : null}
+        ListEmptyComponent={loading ? undefined : <Text style={styles.empty}>No sales yet.</Text>}
+        ListFooterComponent={loading && page > 1 ? <ActivityIndicator color={colors.primary} /> : undefined}
         renderItem={({ item }) => (
           <Pressable
             style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.primarySoft }]}

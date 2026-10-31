@@ -57,7 +57,11 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
 
   return (
     <Screen>
-      <Notice>Enter the 4-digit one-time PIN sent by SMS to {phone}. It expires in 10 minutes.</Notice>
+      <Notice>
+        {mode === 'setup'
+          ? `Enter the 4-digit one-time PIN sent by SMS to ${phone} when your school added you.`
+          : `Enter the 4-digit one-time PIN sent by SMS to ${phone}. It expires in 10 minutes.`}
+      </Notice>
       <TextField
         label="One-time PIN"
         value={otp}
@@ -70,7 +74,9 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
         placeholder="••••"
       />
       <Button title="Continue" disabled={otp.length !== 4} onPress={() => setStep('pin')} />
-      <Button title="Resend one-time PIN" variant="ghost" loading={resending} onPress={resend} />
+      <Button
+        title={mode === 'setup' ? "Didn't get it? Send a new one" : 'Resend one-time PIN'}
+        variant="ghost" loading={resending} onPress={resend} />
       <Button title="Back to login" variant="ghost" onPress={() => navigation.popToTop()} />
     </Screen>
   );

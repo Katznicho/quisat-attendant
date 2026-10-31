@@ -76,7 +76,7 @@ export default function SaleDetailScreen({ route }: Props) {
       </View>
 
       {sale.reversal_status === 'pending' ? (
-        <Notice tone="warning">Reversal requested: "{sale.reversal_reason}". Waiting for the school admin.</Notice>
+        <Notice tone="warning">Reversal requested: "{sale.reversal_reason}". Waiting for Quisat to approve.</Notice>
       ) : null}
       {sale.reversal_status === 'approved' ? (
         <Notice tone="success">Reversal approved. The money went back to the card and the float.</Notice>
@@ -93,7 +93,7 @@ export default function SaleDetailScreen({ route }: Props) {
 
       {requesting ? (
         <View style={{ gap: spacing.md }}>
-          <Notice>A school admin must approve the reversal before the money is returned.</Notice>
+          <Notice>Quisat must approve the reversal before the money is returned.</Notice>
           <TextField
             label="What happened?"
             value={reason}

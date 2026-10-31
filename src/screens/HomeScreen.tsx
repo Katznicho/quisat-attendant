@@ -84,7 +84,7 @@ export default function HomeScreen({ navigation }: Props) {
         <View style={styles.floatCard}>
           <Text style={styles.floatLabel}>Canteen float</Text>
           <Text style={styles.floatValue}>{money(canteen?.float_balance)}</Text>
-          {canteen?.is_float_low ? <Text style={styles.floatWarn}>Float is low. Ask the school admin to top it up.</Text> : null}
+          {canteen?.is_float_low ? <Text style={styles.floatWarn}>Float is low. Ask Quisat to top it up.</Text> : null}
           <View style={styles.todayRow}>
             <View>
               <Text style={styles.todayLabel}>Sales today</Text>
@@ -126,7 +126,7 @@ export default function HomeScreen({ navigation }: Props) {
 
         {dashboard && dashboard.pending_reversals > 0 ? (
           <Notice tone="warning">
-            {dashboard.pending_reversals} reversal{dashboard.pending_reversals === 1 ? '' : 's'} awaiting school admin approval.
+            {dashboard.pending_reversals} reversal{dashboard.pending_reversals === 1 ? '' : 's'} awaiting Quisat approval.
           </Notice>
         ) : null}
       </ScrollView>

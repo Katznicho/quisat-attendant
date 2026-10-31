@@ -59,8 +59,8 @@ export default function FloatStatementScreen() {
           ) : null}
         </View>
       }
-      ListEmptyComponent={loading ? null : <Text style={styles.empty}>No float movements yet.</Text>}
-      ListFooterComponent={loading && page > 1 ? <ActivityIndicator color={colors.primary} /> : null}
+      ListEmptyComponent={loading ? undefined : <Text style={styles.empty}>No float movements yet.</Text>}
+      ListFooterComponent={loading && page > 1 ? <ActivityIndicator color={colors.primary} /> : undefined}
       renderItem={({ item }) => (
         <View style={styles.row}>
           <View style={{ flex: 1, gap: 2 }}>

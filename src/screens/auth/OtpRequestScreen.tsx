@@ -33,7 +33,7 @@ export default function OtpRequestScreen({ navigation, route }: Props) {
     <Screen>
       <Notice>
         {mode === 'setup'
-          ? 'Your school admin added you as an attendant. Enter the same phone number to get a one-time PIN by SMS.'
+          ? 'Your school admin added you as an attendant and a one-time PIN was sent to your phone by SMS. Enter that phone number to continue.'
           : 'Enter your phone number. We will send a one-time PIN by SMS so you can choose a new PIN.'}
       </Notice>
       <TextField
@@ -45,13 +45,24 @@ export default function OtpRequestScreen({ navigation, route }: Props) {
         placeholder="07XX XXX XXX"
         error={error}
       />
-      <Button title="Send one-time PIN" loading={busy} disabled={phone.trim().length < 9} onPress={send} />
-      <Button
-        title="I already have a one-time PIN"
-        variant="ghost"
-        disabled={phone.trim().length < 9}
-        onPress={() => navigation.navigate('OtpVerify', { phone: phone.trim(), mode })}
-      />
+      {mode === 'setup' ? (
+        // The admin's "add attendant" action already texted the one-time PIN.
+        <Button
+          title="Continue"
+          disabled={phone.trim().length < 9}
+          onPress={() => navigation.navigate('OtpVerify', { phone: phone.trim(), mode })}
+        />
+      ) : (
+        <>
+          <Button title="Send one-time PIN" loading={busy} disabled={phone.trim().length < 9} onPress={send} />
+          <Button
+            title="I already have a one-time PIN"
+            variant="ghost"
+            disabled={phone.trim().length < 9}
+            onPress={() => navigation.navigate('OtpVerify', { phone: phone.trim(), mode })}
+          />
+        </>
+      )}
     </Screen>
   );
 }
