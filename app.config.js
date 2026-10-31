@@ -38,6 +38,19 @@ module.exports = {
       'expo-secure-store',
       'expo-status-bar',
       ['expo-camera', { cameraPermission: 'Quisat Attendant uses the camera to scan student cards.', recordAudioAndroid: false }],
+      [
+        'expo-build-properties',
+        {
+          android: {
+            // APK size: real phones only (no x86 emulator code), R8 code and resource
+            // shrinking, and compressed native libraries.
+            buildArchs: ['arm64-v8a', 'armeabi-v7a'],
+            enableMinifyInReleaseBuilds: true,
+            enableShrinkResourcesInReleaseBuilds: true,
+            useLegacyPackaging: true,
+          },
+        },
+      ],
     ],
   },
 };
