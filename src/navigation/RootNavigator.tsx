@@ -33,9 +33,11 @@ const theme = {
 
 const screenOptions = {
   headerTintColor: colors.primary,
-  headerTitleStyle: { fontWeight: '700' as const, color: colors.text },
+  headerTitleStyle: { fontWeight: '700' as const, fontSize: 17, color: colors.text },
   headerShadowVisible: false,
+  headerBackButtonDisplayMode: 'minimal' as const,
   headerStyle: { backgroundColor: colors.background },
+  contentStyle: { backgroundColor: colors.background },
 };
 
 export default function RootNavigator() {
@@ -83,9 +85,9 @@ export default function RootNavigator() {
           <AuthStack.Screen
             name="OtpRequest"
             component={OtpRequestScreen}
-            options={({ route }) => ({ title: route.params.mode === 'setup' ? 'Set up account' : 'Forgot PIN' })}
+            options={{ title: '' }}
           />
-          <AuthStack.Screen name="OtpVerify" component={OtpVerifyScreen} options={{ title: 'Enter one-time PIN' }} />
+          <AuthStack.Screen name="OtpVerify" component={OtpVerifyScreen} options={{ title: '' }} />
         </AuthStack.Navigator>
       )}
     </NavigationContainer>

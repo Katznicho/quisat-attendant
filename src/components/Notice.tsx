@@ -9,7 +9,7 @@ type Tone = 'info' | 'success' | 'warning' | 'danger';
 const TONES: Record<Tone, { bg: string; fg: string; icon: keyof typeof Ionicons.glyphMap }> = {
   info: { bg: colors.primarySoft, fg: colors.primary, icon: 'information-circle' },
   success: { bg: colors.successSoft, fg: colors.success, icon: 'checkmark-circle' },
-  warning: { bg: colors.warningSoft, fg: colors.warning, icon: 'alert-circle' },
+  warning: { bg: colors.warningSoft, fg: colors.warning, icon: 'warning' },
   danger: { bg: colors.dangerSoft, fg: colors.danger, icon: 'close-circle' },
 };
 
@@ -17,14 +17,22 @@ export default function Notice({ tone = 'info', children }: { tone?: Tone; child
   const t = TONES[tone];
 
   return (
-    <View style={[styles.box, { backgroundColor: t.bg }]}>
+    <View style={[styles.box, { backgroundColor: t.bg, borderLeftColor: t.fg }]}>
       <Ionicons name={t.icon} size={20} color={t.fg} />
-      <Text style={[styles.text, { color: t.fg }]}>{children}</Text>
+      <Text style={[styles.text, { color: tone === 'info' ? colors.textSecondary : t.fg }]}>{children}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  box: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, alignItems: 'flex-start' },
-  text: { flex: 1, fontSize: 14, lineHeight: 20 },
+  box: {
+    flexDirection: 'row',
+    gap: spacing.sm + 2,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    borderLeftWidth: 3,
+    alignItems: 'flex-start',
+  },
+  text: { flex: 1, fontSize: 14, lineHeight: 20, fontWeight: '500' },
 });

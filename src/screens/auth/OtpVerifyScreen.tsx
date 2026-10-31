@@ -5,7 +5,7 @@ import { Alert } from 'react-native';
 import { api } from '../../api/client';
 import Button from '../../components/Button';
 import NewPinFlow from '../../components/NewPinFlow';
-import Notice from '../../components/Notice';
+import AuthIntro from '../../components/AuthIntro';
 import Screen from '../../components/Screen';
 import TextField from '../../components/TextField';
 import { useAuth } from '../../context/AuthContext';
@@ -57,11 +57,15 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
 
   return (
     <Screen>
-      <Notice>
-        {mode === 'setup'
-          ? `Enter the 4-digit one-time PIN sent by SMS to ${phone} when your school added you.`
-          : `Enter the 4-digit one-time PIN sent by SMS to ${phone}. It expires in 10 minutes.`}
-      </Notice>
+      <AuthIntro
+        icon="chatbubble-ellipses-outline"
+        title="Enter the one-time PIN"
+        message={
+          mode === 'setup'
+            ? `Type the 4-digit code sent by SMS to ${phone} when your school added you.`
+            : `Type the 4-digit code sent by SMS to ${phone}. It expires in 10 minutes.`
+        }
+      />
       <TextField
         label="One-time PIN"
         value={otp}
@@ -72,8 +76,9 @@ export default function OtpVerifyScreen({ navigation, route }: Props) {
         large
         maxLength={4}
         placeholder="••••"
+        style={{ textAlign: 'center', letterSpacing: 12 }}
       />
-      <Button title="Continue" disabled={otp.length !== 4} onPress={() => setStep('pin')} />
+      <Button title="Continue" size="lg" icon="arrow-forward" disabled={otp.length !== 4} onPress={() => setStep('pin')} />
       <Button
         title={mode === 'setup' ? "Didn't get it? Send a new one" : 'Resend one-time PIN'}
         variant="ghost" loading={resending} onPress={resend} />

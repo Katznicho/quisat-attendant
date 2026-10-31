@@ -1,10 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 import { api } from '../api/client';
 import type { CanteenSummary, FloatTransaction } from '../api/types';
+import EmptyState from '../components/EmptyState';
 import Notice from '../components/Notice';
-import { colors, radius, spacing } from '../theme';
+import { colors, elevation, radius, spacing, type } from '../theme';
 import { dateTime, money } from '../utils/format';
 
 export default function FloatStatementScreen() {
@@ -55,20 +57,30 @@ export default function FloatStatementScreen() {
             <View style={styles.balance}>
               <Text style={styles.balanceLabel}>Float balance</Text>
               <Text style={styles.balanceValue}>{money(canteen.float_balance)}</Text>
+              <Text style={styles.balanceCanteen}>{canteen.name}</Text>
             </View>
           ) : null}
         </View>
       }
-      ListEmptyComponent={loading ? undefined : <Text style={styles.empty}>No float movements yet.</Text>}
+      ListEmptyComponent={
+        loading ? undefined : <EmptyState icon="wallet-outline" title="No float movements yet" message="Top-ups and sales show here." />
+      }
       ListFooterComponent={loading && page > 1 ? <ActivityIndicator color={colors.primary} /> : undefined}
       renderItem={({ item }) => (
         <View style={styles.row}>
+          <View style={[styles.icon, { backgroundColor: item.direction === 'credit' ? colors.successSoft : colors.surfaceMuted }]}>
+            <Ionicons
+              name={item.direction === 'credit' ? 'arrow-down' : 'arrow-up'}
+              size={18}
+              color={item.direction === 'credit' ? colors.success : colors.textSecondary}
+            />
+          </View>
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={styles.desc}>{item.description ?? item.type}</Text>
             <Text style={styles.meta}>{dateTime(item.created_at)}</Text>
           </View>
           <View style={{ alignItems: 'flex-end', gap: 2 }}>
-            <Text style={[styles.amount, { color: item.direction === 'credit' ? colors.success : colors.danger }]}>
+            <Text style={[styles.amount, { color: item.direction === 'credit' ? colors.success : colors.text }]}>
               {item.direction === 'credit' ? '+' : '−'}
               {money(item.amount).replace('UGX ', '')}
             </Text>
@@ -82,20 +94,21 @@ export default function FloatStatementScreen() {
 
 const styles = StyleSheet.create({
   list: { padding: spacing.lg, gap: spacing.sm },
-  balance: { backgroundColor: colors.primary, borderRadius: radius.lg, padding: spacing.lg },
-  balanceLabel: { color: '#C7CEF5', fontSize: 13, fontWeight: '600' },
-  balanceValue: { color: '#fff', fontSize: 28, fontWeight: '800', marginTop: 2 },
+  balance: { backgroundColor: colors.primary, borderRadius: radius.xl, padding: spacing.xl, gap: 2 },
+  balanceLabel: { ...type.caption, color: colors.onPrimaryMuted },
+  balanceValue: { ...type.display, fontSize: 32, color: colors.onPrimary },
+  balanceCanteen: { color: colors.onPrimaryMuted, fontSize: 14 },
   row: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: spacing.md,
     backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: radius.lg,
     padding: spacing.md,
+    ...elevation.card,
   },
-  desc: { fontSize: 15, fontWeight: '600', color: colors.text },
+  icon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  desc: { ...type.bodyStrong, fontSize: 15, color: colors.text },
   meta: { fontSize: 12, color: colors.muted },
-  amount: { fontSize: 16, fontWeight: '800' },
-  empty: { textAlign: 'center', color: colors.muted, marginTop: spacing.xxl },
+  amount: { ...type.amount, fontSize: 16 },
 });

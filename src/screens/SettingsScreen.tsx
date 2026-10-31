@@ -3,68 +3,79 @@ import Constants from 'expo-constants';
 import React from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
-import Button from '../components/Button';
+import ActionRow from '../components/ActionRow';
+import DetailList from '../components/DetailList';
 import Screen from '../components/Screen';
+import SectionHeader from '../components/SectionHeader';
+import Surface from '../components/Surface';
 import { useAuth } from '../context/AuthContext';
 import type { AppStackParamList } from '../navigation/types';
-import { colors, radius, spacing } from '../theme';
+import { colors, spacing, type } from '../theme';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Settings'>;
 
 export default function SettingsScreen({ navigation }: Props) {
   const { attendant, signOut } = useAuth();
-
-  const rows: Array<[string, string]> = [
-    ['Name', attendant?.name ?? ''],
-    ['Phone', attendant?.phone ?? ''],
-    ['Canteen', attendant?.canteen?.name ?? ''],
-    ['School', attendant?.school?.name ?? ''],
-  ];
+  const initials = (attendant?.name ?? '?')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
 
   return (
     <Screen>
-      <View style={styles.card}>
-        {rows.map(([label, value]) => (
-          <View key={label} style={styles.row}>
-            <Text style={styles.label}>{label}</Text>
-            <Text style={styles.value}>{value}</Text>
-          </View>
-        ))}
+      <View style={styles.profile}>
+        <View style={styles.avatar}>
+          <Text style={styles.initials}>{initials}</Text>
+        </View>
+        <Text style={styles.name}>{attendant?.name}</Text>
+        <Text style={styles.phone}>{attendant?.phone}</Text>
       </View>
 
-      <Button title="Change PIN" variant="secondary" onPress={() => navigation.navigate('ChangePin')} />
-      <Button
-        title="Log out"
-        variant="danger"
-        onPress={() =>
-          Alert.alert('Log out?', 'You will need your phone number and PIN to log in again.', [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Log out', style: 'destructive', onPress: () => signOut() },
-          ])
-        }
+      <SectionHeader>Workplace</SectionHeader>
+      <DetailList
+        rows={[
+          { label: 'Canteen', value: attendant?.canteen?.name ?? '—' },
+          { label: 'School', value: attendant?.school?.name ?? '—' },
+        ]}
       />
-      <Text style={styles.version}>Quisat Attendant {Constants.expoConfig?.version}</Text>
+
+      <SectionHeader>Security</SectionHeader>
+      <Surface flush style={{ overflow: 'hidden' }}>
+        <ActionRow icon="keypad-outline" title="Change PIN" onPress={() => navigation.navigate('ChangePin')} />
+        <ActionRow
+          divider
+          icon="log-out-outline"
+          tone="danger"
+          title="Log out"
+          onPress={() =>
+            Alert.alert('Log out?', 'You will need your phone number and PIN to log in again.', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Log out', style: 'destructive', onPress: () => signOut() },
+            ])
+          }
+        />
+      </Surface>
+
+      <Text style={styles.version}>Quisat Attendant · v{Constants.expoConfig?.version}</Text>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.lg,
+  profile: { alignItems: 'center', gap: 2, paddingVertical: spacing.md },
+  avatar: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    gap: spacing.md,
-  },
-  label: { fontSize: 15, color: colors.muted },
-  value: { fontSize: 15, fontWeight: '600', color: colors.text, flexShrink: 1, textAlign: 'right' },
-  version: { textAlign: 'center', color: colors.muted, fontSize: 12 },
+  initials: { fontSize: 28, fontWeight: '800', color: colors.onPrimary },
+  name: { ...type.heading, color: colors.text },
+  phone: { ...type.small, color: colors.muted },
+  version: { textAlign: 'center', color: colors.subtle, fontSize: 12, marginTop: spacing.sm },
 });

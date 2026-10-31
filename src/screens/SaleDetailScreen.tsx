@@ -7,10 +7,11 @@ import type { Sale } from '../api/types';
 import Button from '../components/Button';
 import Notice from '../components/Notice';
 import Screen from '../components/Screen';
+import DetailList, { DetailRow } from '../components/DetailList';
 import StatusPill from '../components/StatusPill';
 import TextField from '../components/TextField';
 import type { AppStackParamList } from '../navigation/types';
-import { colors, radius, spacing } from '../theme';
+import { colors, spacing, type } from '../theme';
 import { dateTime, money } from '../utils/format';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SaleDetail'>;
@@ -48,16 +49,14 @@ export default function SaleDetailScreen({ route }: Props) {
     return <Screen>{error ? <Notice tone="danger">{error}</Notice> : <ActivityIndicator color={colors.primary} />}</Screen>;
   }
 
-  const rows: Array<[string, string]> = [
-    ['Student', sale.student?.name ?? '—'],
-    ['Card', sale.card_number ?? '—'],
-    ['Receipt', sale.receipt_number],
-    ['Time', dateTime(sale.created_at)],
-    ['Attendant', sale.attendant ?? '—'],
+  const rows: DetailRow[] = [
+    { label: 'Student', value: sale.student?.name ?? '—' },
+    ...(sale.description ? [{ label: 'Item', value: sale.description }] : []),
+    { label: 'Card', value: sale.card_number ?? '—', mono: true },
+    { label: 'Receipt', value: sale.receipt_number, mono: true },
+    { label: 'Time', value: dateTime(sale.created_at) },
+    { label: 'Attendant', value: sale.attendant ?? '—' },
   ];
-  if (sale.description) {
-    rows.push(['Item', sale.description]);
-  }
 
   return (
     <Screen>
@@ -66,14 +65,7 @@ export default function SaleDetailScreen({ route }: Props) {
         <StatusPill status={sale.status === 'reversed' ? 'reversed' : sale.reversal_status ?? 'completed'} />
       </View>
 
-      <View style={styles.card}>
-        {rows.map(([label, value]) => (
-          <View key={label} style={styles.row}>
-            <Text style={styles.label}>{label}</Text>
-            <Text style={styles.value}>{value}</Text>
-          </View>
-        ))}
-      </View>
+      <DetailList rows={rows} />
 
       {sale.reversal_status === 'pending' ? (
         <Notice tone="warning">Reversal requested: "{sale.reversal_reason}". Waiting for Quisat to approve.</Notice>
@@ -88,7 +80,7 @@ export default function SaleDetailScreen({ route }: Props) {
       {error ? <Notice tone="danger">{error}</Notice> : null}
 
       {sale.can_request_reversal && !requesting ? (
-        <Button title="Request reversal" variant="secondary" onPress={() => setRequesting(true)} />
+        <Button title="Request reversal" icon="arrow-undo-outline" variant="secondary" onPress={() => setRequesting(true)} />
       ) : null}
 
       {requesting ? (
@@ -112,24 +104,7 @@ export default function SaleDetailScreen({ route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
-  amount: { fontSize: 34, fontWeight: '800', color: colors.text },
+  hero: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.lg, marginBottom: spacing.sm },
+  amount: { ...type.display, color: colors.text },
   struck: { textDecorationLine: 'line-through', color: colors.muted },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.lg,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-    gap: spacing.md,
-  },
-  label: { fontSize: 15, color: colors.muted },
-  value: { fontSize: 15, fontWeight: '600', color: colors.text, flexShrink: 1, textAlign: 'right' },
 });

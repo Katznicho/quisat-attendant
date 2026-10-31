@@ -4,10 +4,11 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { api, ApiError } from '../api/client';
 import Button from '../components/Button';
+import Notice from '../components/Notice';
 import PinPad from '../components/PinPad';
 import Screen from '../components/Screen';
 import type { AppStackParamList } from '../navigation/types';
-import { colors, radius, spacing } from '../theme';
+import { colors, radius, spacing, type } from '../theme';
 import { money } from '../utils/format';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SalePin'>;
@@ -39,15 +40,18 @@ export default function SalePinScreen({ navigation, route }: Props) {
   return (
     <Screen>
       <View style={styles.summary}>
-        <Text style={styles.label}>{card.student?.name}</Text>
+        <Text style={styles.payTo}>Pay canteen</Text>
         <Text style={styles.amount}>{money(amount)}</Text>
-        {description ? <Text style={styles.label}>{description}</Text> : null}
+        <Text style={styles.meta} numberOfLines={1}>
+          {card.student?.name}
+          {description ? ` · ${description}` : ''}
+        </Text>
       </View>
 
       {fatal ? (
         <View style={styles.fatal}>
-          <Text style={styles.fatalText}>{error}</Text>
-          <Button title="Back" variant="secondary" onPress={() => navigation.goBack()} />
+          <Notice tone="danger">{error}</Notice>
+          <Button title="Back" variant="secondary" icon="arrow-back" onPress={() => navigation.goBack()} />
         </View>
       ) : (
         <PinPad
@@ -66,14 +70,14 @@ export default function SalePinScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   summary: {
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.primary,
+    borderRadius: radius.xl,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    gap: 2,
   },
-  label: { fontSize: 15, color: colors.muted },
-  amount: { fontSize: 34, fontWeight: '800', color: colors.text, marginVertical: spacing.xs },
-  fatal: { gap: spacing.lg, alignItems: 'stretch' },
-  fatalText: { fontSize: 17, color: colors.danger, textAlign: 'center', fontWeight: '600' },
+  payTo: { ...type.caption, color: colors.onPrimaryMuted },
+  amount: { ...type.display, fontSize: 34, color: colors.onPrimary },
+  meta: { fontSize: 14, color: colors.onPrimaryMuted },
+  fatal: { gap: spacing.lg },
 });

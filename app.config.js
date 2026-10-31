@@ -20,6 +20,7 @@ module.exports = {
       infoPlist: {
         CFBundleDisplayName: 'Quisat Attendant',
         ITSAppUsesNonExemptEncryption: false,
+        NSCameraUsageDescription: 'Quisat Attendant uses the camera to scan student cards.',
       },
     },
     android: {
@@ -33,6 +34,10 @@ module.exports = {
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'https://app.quisat.com/api/v1',
     },
-    plugins: ['expo-secure-store', 'expo-status-bar'],
+    plugins: [
+      'expo-secure-store',
+      'expo-status-bar',
+      ['expo-camera', { cameraPermission: 'Quisat Attendant uses the camera to scan student cards.', recordAudioAndroid: false }],
+    ],
   },
 };

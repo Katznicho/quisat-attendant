@@ -1,8 +1,9 @@
-import React from 'react';
+import { HeaderHeightContext } from '@react-navigation/elements';
+import React, { useContext } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '../theme';
+import { colors, elevation, spacing } from '../theme';
 
 type Props = {
   children: React.ReactNode;
@@ -13,32 +14,46 @@ type Props = {
 
 /** Page wrapper: safe area, keyboard avoidance, optional scrolling and a pinned footer. */
 export default function Screen({ children, scroll = true, style, footer }: Props) {
+  const insets = useSafeAreaInsets();
+  // Zero on screens without a header (login), so the keyboard offset is right everywhere.
+  const headerHeight = useContext(HeaderHeightContext) ?? 0;
+  const bottom = insets.bottom + spacing.lg;
+
   const content = scroll ? (
-    <ScrollView contentContainerStyle={[styles.content, style]} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      contentContainerStyle={[styles.content, !footer && { paddingBottom: bottom + spacing.lg }, style]}
+      keyboardShouldPersistTaps="handled"
+    >
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.content, styles.fill, style]}>{children}</View>
+    <View style={[styles.content, styles.fill, !footer && { paddingBottom: bottom }, style]}>{children}</View>
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
-      <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        {content}
-        {footer ? <View style={styles.footer}>{footer}</View> : null}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <KeyboardAvoidingView
+      style={[styles.fill, styles.page, { paddingLeft: insets.left, paddingRight: insets.right }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
+    >
+      {content}
+      {footer ? <View style={[styles.footer, { paddingBottom: bottom }]}>{footer}</View> : null}
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background },
+  page: { backgroundColor: colors.background },
   fill: { flex: 1 },
   content: { padding: spacing.lg, gap: spacing.lg },
   footer: {
-    padding: spacing.lg,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
+    gap: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
     backgroundColor: colors.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    ...elevation.card,
+    shadowOffset: { width: 0, height: -4 },
   },
 });

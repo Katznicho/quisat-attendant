@@ -1,19 +1,28 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { colors, radius, spacing } from '../theme';
+
+type Variant = 'primary' | 'success' | 'secondary' | 'danger' | 'ghost';
 
 type Props = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: Variant;
+  icon?: keyof typeof Ionicons.glyphMap;
+  size?: 'md' | 'lg';
   loading?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
 };
 
-export default function Button({ title, onPress, variant = 'primary', loading, disabled, style }: Props) {
+const FILLED: Variant[] = ['primary', 'success', 'danger'];
+
+export default function Button({ title, onPress, variant = 'primary', icon, size = 'md', loading, disabled, style }: Props) {
   const inactive = disabled || loading;
+  const filled = FILLED.includes(variant);
+  const fg = filled ? colors.onPrimary : variant === 'danger' ? colors.danger : colors.primary;
 
   return (
     <Pressable
@@ -23,16 +32,20 @@ export default function Button({ title, onPress, variant = 'primary', loading, d
       disabled={inactive}
       style={({ pressed }) => [
         styles.base,
+        size === 'lg' && styles.large,
         styles[variant],
-        pressed && !inactive && styles.pressed,
+        pressed && !inactive && (filled ? styles.pressedFilled : styles.pressedPlain),
         inactive && styles.inactive,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' || variant === 'danger' ? '#fff' : colors.primary} />
+        <ActivityIndicator color={fg} />
       ) : (
-        <Text style={[styles.label, (variant === 'secondary' || variant === 'ghost') && styles.labelDark]}>{title}</Text>
+        <View style={styles.inner}>
+          {icon ? <Ionicons name={icon} size={size === 'lg' ? 22 : 19} color={fg} /> : null}
+          <Text style={[styles.label, size === 'lg' && styles.labelLarge, { color: fg }]}>{title}</Text>
+        </View>
       )}
     </Pressable>
   );
@@ -46,12 +59,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  large: { minHeight: 60, borderRadius: radius.lg },
+  inner: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   primary: { backgroundColor: colors.primary },
+  success: { backgroundColor: colors.success },
   danger: { backgroundColor: colors.danger },
   secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   ghost: { backgroundColor: 'transparent' },
-  pressed: { opacity: 0.85 },
-  inactive: { opacity: 0.5 },
-  label: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  labelDark: { color: colors.primary },
+  pressedFilled: { opacity: 0.88, transform: [{ scale: 0.99 }] },
+  pressedPlain: { backgroundColor: colors.primarySoft },
+  inactive: { opacity: 0.45 },
+  label: { fontSize: 16, fontWeight: '700' },
+  labelLarge: { fontSize: 17 },
 });

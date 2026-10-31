@@ -6,6 +6,7 @@ import { api } from '../api/client';
 import NewPinFlow from '../components/NewPinFlow';
 import Notice from '../components/Notice';
 import Screen from '../components/Screen';
+import { StudentChip } from '../components/StudentCard';
 import type { AppStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'SetCardPin'>;
@@ -17,6 +18,7 @@ export default function SetCardPinScreen({ navigation, route }: Props) {
 
   return (
     <Screen>
+      <StudentChip card={card} />
       <Notice>
         Hand the phone to {name}. The parent gets an SMS when the PIN is {mode === 'activate' ? 'set' : 'reset'}.
       </Notice>

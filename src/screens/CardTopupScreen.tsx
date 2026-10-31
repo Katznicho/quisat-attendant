@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
@@ -7,9 +8,10 @@ import type { Topup } from '../api/types';
 import Button from '../components/Button';
 import Notice from '../components/Notice';
 import Screen from '../components/Screen';
+import { StudentChip } from '../components/StudentCard';
 import TextField from '../components/TextField';
 import type { AppStackParamList } from '../navigation/types';
-import { colors, spacing } from '../theme';
+import { colors, spacing, type } from '../theme';
 import { digitsOnly, money } from '../utils/format';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'CardTopup'>;
@@ -73,13 +75,23 @@ export default function CardTopupScreen({ navigation, route }: Props) {
       <Screen
         footer={
           <View style={{ gap: spacing.sm }}>
-            {failed || timedOut ? <Button title="Try again" variant="secondary" onPress={() => setTopup(null)} /> : null}
-            <Button title="Done" onPress={() => navigation.popToTop()} />
+            {failed || timedOut ? <Button title="Try again" icon="refresh" variant="secondary" onPress={() => setTopup(null)} /> : null}
+            <Button title="Done" size="lg" onPress={() => navigation.popToTop()} />
           </View>
         }
       >
         <View style={styles.status}>
-          {waiting && !timedOut ? <ActivityIndicator size="large" color={colors.primary} /> : null}
+          <View style={[styles.ring, done && { backgroundColor: colors.successSoft }, failed && { backgroundColor: colors.dangerSoft }]}>
+            {done ? (
+              <Ionicons name="checkmark-circle" size={56} color={colors.success} />
+            ) : failed ? (
+              <Ionicons name="close-circle" size={56} color={colors.danger} />
+            ) : timedOut ? (
+              <Ionicons name="time-outline" size={48} color={colors.warning} />
+            ) : (
+              <ActivityIndicator size="large" color={colors.primary} />
+            )}
+          </View>
           <Text style={styles.amount}>{money(topup.amount)}</Text>
           <Text style={styles.forWho}>for {card.student?.name}</Text>
         </View>
@@ -104,6 +116,8 @@ export default function CardTopupScreen({ navigation, route }: Props) {
     <Screen
       footer={
         <Button
+          icon="phone-portrait-outline"
+          size="lg"
           title={value >= MIN_TOPUP ? `Send prompt for ${money(value)}` : `Minimum ${money(MIN_TOPUP)}`}
           loading={busy}
           disabled={value < MIN_TOPUP || phone.trim().length < 9}
@@ -111,9 +125,10 @@ export default function CardTopupScreen({ navigation, route }: Props) {
         />
       }
     >
-      <Notice>Top-ups are paid by mobile money. The payer approves a prompt on their phone.</Notice>
+      <StudentChip card={card} detail={`Balance ${money(card.balance)}`} />
       <TextField
-        label="Amount (UGX)"
+        label="Amount"
+        prefix="UGX"
         value={amount ? Number(amount).toLocaleString('en-US') : ''}
         onChangeText={(text) => setAmount(digitsOnly(text).slice(0, 7))}
         keyboardType="number-pad"
@@ -122,18 +137,29 @@ export default function CardTopupScreen({ navigation, route }: Props) {
       />
       <TextField
         label="Payer's mobile money number"
+        icon="call-outline"
         value={phone}
         onChangeText={setPhone}
         keyboardType="phone-pad"
         placeholder="07XX XXX XXX"
         error={error}
       />
+      <Notice>The payer approves a mobile money prompt on their phone. The parent gets an SMS once the card is credited.</Notice>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  status: { alignItems: 'center', gap: spacing.sm, marginTop: spacing.xl },
-  amount: { fontSize: 34, fontWeight: '800', color: colors.text },
-  forWho: { fontSize: 16, color: colors.muted },
+  status: { alignItems: 'center', gap: spacing.xs, marginTop: spacing.xl, marginBottom: spacing.sm },
+  ring: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  amount: { ...type.display, color: colors.text },
+  forWho: { ...type.body, color: colors.muted },
 });

@@ -5,10 +5,12 @@ import { ActivityIndicator } from 'react-native';
 
 import { api } from '../api/client';
 import type { Card } from '../api/types';
-import Button from '../components/Button';
+import ActionRow from '../components/ActionRow';
 import Notice from '../components/Notice';
 import Screen from '../components/Screen';
+import SectionHeader from '../components/SectionHeader';
 import StudentCard from '../components/StudentCard';
+import Surface from '../components/Surface';
 import type { AppStackParamList } from '../navigation/types';
 import { colors } from '../theme';
 
@@ -39,28 +41,53 @@ export default function CardManageScreen({ navigation, route }: Props) {
     );
   }
 
+  const actions = [
+    card.status === 'inactive' && (
+      <ActionRow
+        key="activate"
+        icon="card-outline"
+        tone="success"
+        title="Activate card"
+        subtitle="The student chooses a PIN"
+        onPress={() => navigation.navigate('SetCardPin', { card, mode: 'activate' })}
+      />
+    ),
+    card.status !== 'blocked' && (
+      <ActionRow
+        key="topup"
+        icon="add-circle-outline"
+        title="Top up"
+        subtitle="Paid by mobile money"
+        onPress={() => navigation.navigate('CardTopup', { card })}
+      />
+    ),
+    card.status === 'active' && (
+      <ActionRow
+        key="pin"
+        icon={card.is_locked ? 'lock-open-outline' : 'key-outline'}
+        tone={card.is_locked ? 'warning' : 'primary'}
+        title={card.is_locked ? 'Unlock card' : 'Reset PIN'}
+        subtitle={card.is_locked ? 'Locked after wrong PINs: set a new PIN' : 'The student chooses a new PIN'}
+        onPress={() => navigation.navigate('SetCardPin', { card, mode: 'reset' })}
+      />
+    ),
+  ].filter(Boolean) as React.ReactElement<{ divider?: boolean }>[];
+
   return (
     <Screen>
       <StudentCard card={card} />
 
       {card.status === 'blocked' ? (
-        <Notice tone="warning">This card is blocked by the school. Only the school admin can unblock it.</Notice>
+        <Notice tone="warning">This card is deactivated by the school. Only the school admin can activate it again.</Notice>
       ) : null}
 
-      {card.status === 'inactive' ? (
-        <Button title="Activate card" onPress={() => navigation.navigate('SetCardPin', { card, mode: 'activate' })} />
-      ) : null}
-
-      {card.status === 'active' ? (
-        <Button
-          title={card.is_locked ? 'Unlock: reset PIN' : 'Reset PIN'}
-          variant="secondary"
-          onPress={() => navigation.navigate('SetCardPin', { card, mode: 'reset' })}
-        />
-      ) : null}
-
-      {card.status !== 'blocked' ? (
-        <Button title="Top up with mobile money" onPress={() => navigation.navigate('CardTopup', { card })} />
+      {actions.length > 0 ? (
+        <>
+          <SectionHeader>Card services</SectionHeader>
+          <Surface flush style={{ overflow: 'hidden' }}>
+            {actions.map((action, index) => React.cloneElement(action, { divider: index > 0 }))}
+          </Surface>
+        </>
       ) : null}
     </Screen>
   );
