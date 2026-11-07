@@ -1,9 +1,12 @@
+export type SettlementMode = 'float' | 'collect';
+
 export type CanteenSummary = {
   uuid: string;
   name: string;
   location: string | null;
   status: string;
   float_balance: number;
+  settlement_mode?: SettlementMode;
   is_float_low: boolean;
 };
 
@@ -12,9 +15,14 @@ export type Attendant = {
   name: string;
   phone: string;
   status: string;
+  can_withdraw?: boolean;
   canteen: CanteenSummary | null;
   school: { id: number; name: string; logo_url: string | null } | null;
 };
+
+export function canWithdrawBalance(attendant: Attendant | null | undefined): boolean {
+  return attendant?.canteen?.settlement_mode === 'collect' && attendant.can_withdraw === true;
+}
 
 export type StudentSummary = {
   id: number;
@@ -80,6 +88,15 @@ export type Topup = {
   credited_at: string | null;
   created_at: string;
   payment: { reference: string | null; amount: number | null; platform_charge: number | null } | null;
+};
+
+export type Withdrawal = {
+  uuid: string;
+  amount: number;
+  phone_number: string | null;
+  status: string;
+  notes?: string | null;
+  created_at?: string | null;
 };
 
 export type Pagination = {

@@ -17,6 +17,7 @@ import SaleReceiptScreen from '../screens/SaleReceiptScreen';
 import SalesScreen from '../screens/SalesScreen';
 import SetCardPinScreen from '../screens/SetCardPinScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import WithdrawScreen from '../screens/WithdrawScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import OtpRequestScreen from '../screens/auth/OtpRequestScreen';
 import OtpVerifyScreen from '../screens/auth/OtpVerifyScreen';
@@ -75,7 +76,8 @@ export default function RootNavigator() {
           <AppStack.Screen name="CardTopup" component={CardTopupScreen} options={{ title: 'Top up card' }} />
           <AppStack.Screen name="Sales" component={SalesScreen} options={{ title: 'Sales' }} />
           <AppStack.Screen name="SaleDetail" component={SaleDetailScreen} options={{ title: 'Sale' }} />
-          <AppStack.Screen name="FloatStatement" component={FloatStatementScreen} options={{ title: 'Float statement' }} />
+          <AppStack.Screen name="FloatStatement" component={FloatStatementScreen} options={{ title: 'Statement' }} />
+          <AppStack.Screen name="Withdraw" component={WithdrawScreen} options={{ title: 'Withdraw' }} />
           <AppStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
           <AppStack.Screen name="ChangePin" component={ChangePinScreen} options={{ title: 'Change PIN' }} />
         </AppStack.Navigator>

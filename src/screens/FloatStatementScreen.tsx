@@ -55,7 +55,7 @@ export default function FloatStatementScreen() {
           {error ? <Notice tone="danger">{error}</Notice> : null}
           {canteen ? (
             <View style={styles.balance}>
-              <Text style={styles.balanceLabel}>Float balance</Text>
+              <Text style={styles.balanceLabel}>{canteen.settlement_mode === 'collect' ? 'Available to withdraw' : 'Float balance'}</Text>
               <Text style={styles.balanceValue}>{money(canteen.float_balance)}</Text>
               <Text style={styles.balanceCanteen}>{canteen.name}</Text>
             </View>
@@ -63,7 +63,13 @@ export default function FloatStatementScreen() {
         </View>
       }
       ListEmptyComponent={
-        loading ? undefined : <EmptyState icon="wallet-outline" title="No float movements yet" message="Top-ups and sales show here." />
+        loading ? undefined : (
+          <EmptyState
+            icon="wallet-outline"
+            title={canteen?.settlement_mode === 'collect' ? 'No balance movements yet' : 'No float movements yet'}
+            message={canteen?.settlement_mode === 'collect' ? 'Sales and withdrawals show here.' : 'Top-ups and sales show here.'}
+          />
+        )
       }
       ListFooterComponent={loading && page > 1 ? <ActivityIndicator color={colors.primary} /> : undefined}
       renderItem={({ item }) => (

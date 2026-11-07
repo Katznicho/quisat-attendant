@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { api } from '../api/client';
 import type { Dashboard } from '../api/types';
+import { canWithdrawBalance } from '../api/types';
 import ActionRow from '../components/ActionRow';
 import Notice from '../components/Notice';
 import SectionHeader from '../components/SectionHeader';
@@ -50,9 +51,12 @@ export default function HomeScreen({ navigation }: Props) {
     }, [load]),
   );
 
-  const canteen = dashboard?.attendant.canteen ?? attendant?.canteen;
-  const school = dashboard?.attendant.school ?? attendant?.school;
+  const profile = dashboard?.attendant ?? attendant;
+  const canteen = profile?.canteen;
+  const school = profile?.school ?? attendant?.school;
   const firstName = attendant?.name?.split(' ')[0];
+  const collectsSales = canteen?.settlement_mode === 'collect';
+  const showWithdraw = canWithdrawBalance(profile);
 
   return (
     <ScrollView
@@ -106,11 +110,11 @@ export default function HomeScreen({ navigation }: Props) {
         </Text>
 
         <View style={styles.floatBlock}>
-          <Text style={styles.floatLabel}>Canteen float</Text>
+          <Text style={styles.floatLabel}>{collectsSales ? 'Available to withdraw' : 'Canteen float'}</Text>
           <Text style={styles.floatValue} adjustsFontSizeToFit numberOfLines={1}>
             {money(canteen?.float_balance)}
           </Text>
-          {canteen?.is_float_low ? (
+          {!collectsSales && canteen?.is_float_low ? (
             <View style={styles.lowChip}>
               <Ionicons name="warning" size={13} color="#7A4A00" />
               <Text style={styles.lowText}>Float is low. Ask Quisat to top it up.</Text>
@@ -178,10 +182,19 @@ export default function HomeScreen({ navigation }: Props) {
           <ActionRow
             divider
             icon="wallet-outline"
-            title="Float statement"
-            subtitle="Every top-up and sale"
+            title={collectsSales ? 'Balance statement' : 'Float statement'}
+            subtitle={collectsSales ? 'Sales and withdrawals' : 'Every top-up and sale'}
             onPress={() => navigation.navigate('FloatStatement')}
           />
+          {showWithdraw ? (
+            <ActionRow
+              divider
+              icon="cash-outline"
+              title="Withdraw"
+              subtitle="Send the sales balance to mobile money"
+              onPress={() => navigation.navigate('Withdraw')}
+            />
+          ) : null}
         </Surface>
       </View>
     </ScrollView>

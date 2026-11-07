@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { api } from '../api/client';
 import type { Sale } from '../api/types';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Notice from '../components/Notice';
 import Screen from '../components/Screen';
@@ -18,6 +19,8 @@ type Props = NativeStackScreenProps<AppStackParamList, 'SaleDetail'>;
 
 export default function SaleDetailScreen({ route }: Props) {
   const { uuid } = route.params;
+  const { attendant } = useAuth();
+  const collectsSales = attendant?.canteen?.settlement_mode === 'collect';
   const [sale, setSale] = useState<Sale | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [requesting, setRequesting] = useState(false);
@@ -71,7 +74,11 @@ export default function SaleDetailScreen({ route }: Props) {
         <Notice tone="warning">Reversal requested: "{sale.reversal_reason}". Waiting for Quisat to approve.</Notice>
       ) : null}
       {sale.reversal_status === 'approved' ? (
-        <Notice tone="success">Reversal approved. The money went back to the card and the float.</Notice>
+        <Notice tone="success">
+          {collectsSales
+            ? 'Reversal approved. The money went back to the card and left this canteen’s balance.'
+            : 'Reversal approved. The money went back to the card and the float.'}
+        </Notice>
       ) : null}
       {sale.reversal_status === 'rejected' ? (
         <Notice tone="danger">Reversal rejected{sale.reversal_review_note ? `: ${sale.reversal_review_note}` : ''}.</Notice>

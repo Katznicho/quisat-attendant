@@ -33,7 +33,11 @@ module.exports = {
     },
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'https://app.quisat.com/api/v1',
+      eas: {
+        projectId: '4fbc83c5-edb9-437d-affa-a20aa3641ab6',
+      },
     },
+    owner: 'thecodeartisan',
     plugins: [
       'expo-secure-store',
       'expo-status-bar',

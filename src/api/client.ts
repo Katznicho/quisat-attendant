@@ -9,6 +9,7 @@ import type {
   Pagination,
   Sale,
   Topup,
+  Withdrawal,
 } from './types';
 
 const BASE_URL: string =
@@ -89,7 +90,8 @@ async function request<T>(
       json?.message ||
       (response.status >= 500 ? 'Something went wrong on the server. Try again.' : `Error ${response.status}`);
 
-    if (token && (response.status === 401 || (response.status === 403 && path !== 'auth/login'))) {
+    const refusedWithdrawal = path === 'withdrawals' && response.status === 403;
+    if (token && !refusedWithdrawal && (response.status === 401 || (response.status === 403 && path !== 'auth/login'))) {
       unauthorizedHandler?.();
     }
 
@@ -135,6 +137,14 @@ export const api = {
       undefined,
       { page },
     ),
+  withdrawals: () =>
+    request<Ok<{ canteen: Attendant['canteen']; can_withdraw: boolean; withdrawals: Withdrawal[] }>>('GET', 'withdrawals'),
+  withdraw: (amount: number, phoneNumber: string, notes?: string) =>
+    request<Ok<{ canteen: Attendant['canteen']; withdrawal: Withdrawal }>>('POST', 'withdrawals', {
+      amount,
+      phone_number: phoneNumber,
+      notes: notes || undefined,
+    }),
 
   // Cards
   card: (cardNumber: string) => request<Ok<{ card: Card }>>('GET', `cards/${encodeURIComponent(cardNumber)}`),

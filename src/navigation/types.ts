@@ -20,6 +20,7 @@ export type AppStackParamList = {
   Sales: undefined;
   SaleDetail: { uuid: string };
   FloatStatement: undefined;
+  Withdraw: undefined;
   Settings: undefined;
   ChangePin: undefined;
 };
